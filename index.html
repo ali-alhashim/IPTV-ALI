@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name=”apple-mobile-web-app-capable” content=”yes”>
+    <title>IPTV-Ali Code</title>
+    <script src="Channels.js"></script>
+    <link rel="stylesheet" href="player/plyr.css" />
+
+    <script src="player/dash.all.min.js"></script>
+
+
+      
+   
+<style>
+
+html,body {
+    width:100vw;
+   
+    height: 100vh;
+    margin: 0;
+}
+
+@media (min-aspect-ratio: 16/9) {
+  video {
+    width:100vw;
+    height: 100vh;
+
+    max-width: 100%;
+    max-height: 100%;
+    }
+}
+
+@media (max-aspect-ratio: 16/9) {
+  video { 
+    width:100vw;
+    height: 100vh;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    }
+}
+
+
+  
+video {
+  position: absolute;
+  display: block;
+  object-fit: cover;
+ 
+  width: 100%;
+  height: 100%;
+  
+
+  max-width: 100%;
+  max-height: 100%;
+  
+
+  
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: -1;
+  z-index:-1;
+  
+  
+}
+
+   
+    
+
+    #palyList
+    {
+        position: absolute;
+       /*opacity: 0; */
+        z-index: 3 ;
+        width: 20%;
+        height: 90%;
+        right: 2;
+        top: 5;
+        
+        background-color: rgb(39, 39, 39);
+        border: 1px solid #ffffff;
+
+
+        display: flex;
+        flex-direction: column;
+        overflow-y: hidden;
+        padding: 10px;
+        display :none;
+    }
+    
+    .chButton
+    {
+      width: 100%;
+      height: 50px;
+      
+      font-weight: bold;
+    }
+    .chButton:focus
+    {
+      background-color: dodgerblue;
+    }
+
+</style>
+
+
+
+<style>
+  #snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+  }
+  
+  #snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+  
+  @-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+  }
+  
+  @keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+  }
+  
+  @-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+  }
+  
+  @keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+  }
+  </style>
+
+</head>
+<body id="myBody" onclick="playVid()">
+ 
+   
+    <video id="player"   playsinline     autoplay poster="poster.svg" ></video>
+
+
+
+   
+    
+   
+
+    <div id="snackbar"></div>
+   
+       
+      
+       
+    
+ 
+    
+
+  
+
+<div  class="swiper-container" id="palyList">
+  
+      <!-- Slides -->
+     
+      
+      <script>
+
+
+
+        var channels;
+        function listLoader(ListName)
+        {
+
+               channels = ListName;
+                            
+               channels.sort((a, b) => a.Name.localeCompare(b.Name));
+
+               channels.forEach(palyListChannels);
+
+            function palyListChannels(item, index)
+                {
+  
+   
+              document.write('<div class="slide"><button onclick="TV('+index+')" class="chButton" id="chButton'+index+'"> '+item.Name+' </button></div>');
+   
+   
+                }             
+
+       }
+
+
+
+       if(true)
+       {
+        listLoader(channelsMix);
+        //listLoader(channelsVIP);
+       }
+       
+      
+       
+      
+      </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+  
+</div>    
+
+
+<script src="player/plyr.js"></script>
+<script src="player/hls.js"></script>
+
+
+
+
+<script>
+
+ var cuurentCN = 0;
+ var moveP =0;
+ var video = document.getElementById('player');
+
+
+ function playVid() 
+ { 
+   
+  video.play(); 
+} 
+
+
+
+function snackbarFunction(MassageText) {
+  var snackbarDIV = document.getElementById("snackbar");
+  snackbarDIV.className = "show";
+  snackbarDIV.innerHTML = MassageText;
+  setTimeout(function(){ snackbarDIV.className = snackbarDIV.className.replace("show", ""); }, 3000);
+}
+
+ 
+
+function TV(channelNumber) 
+{
+    
+    if(channels[channelNumber].type=="application/x-mpegURL")
+    {
+
+    if (Hls.isSupported()) 
+    {
+      var hls = new Hls();
+      hls.loadSource(channels[channelNumber].Server);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,function() 
+      {
+
+        try{
+          
+          video.play();
+        }
+        catch(e)
+        {
+          console.log("There is Exception Errer for run by x-mpeg" +e);
+        }
+     
+
+      });
+    }
+
+    else
+    {
+      console.log("Hls is not Supported !!!");
+    }
+
+    }
+    
+    else if(channels[channelNumber].type=="application/dash+xml")
+    {
+
+    
+      
+      let url = channels[channelNumber].Server;
+      let player = dashjs.MediaPlayer().create();
+      player.initialize(video, url, true);
+
+
+      try{
+          
+          video.play();
+        }
+        catch(e)
+        {
+          console.log("There is Exception Errer for run by x-mpeg" +e);
+        }
+     
+     
+       
+    
+    }
+    else
+    {
+      console.log("application/octet-stream ++++++++++++");
+   
+      video.src=channels[channelNumber].Server;
+      
+      try{
+          
+          video.play();
+        }
+        catch(e)
+        {
+          console.log("There is Exception Errer for run by x-mpeg" +e);
+        }
+    }
+  
+    
+
+   
+    document.getElementById('palyList').style.display = "none";
+
+    window.setTimeout(function ()
+    {
+      document.getElementById("chButton"+channelNumber).focus();
+    }, 0);
+
+    cuurentCN = channelNumber;
+    moveP =cuurentCN; 
+
+
+    // you change the channel 
+    snackbarFunction(channels[channelNumber].Name);
+    
+
+   
+    
+  
+};
+
+  TV(cuurentCN);
+
+
+  document.addEventListener('keydown', logKey);
+
+function logKey(e) {
+//alert(e.keyCode);
+
+if(e.keyCode== 82)
+{
+    //back button in remote contral R in keyborad
+  location.reload(); 
+    
+}
+
+
+if(e.keyCode == 39)
+{
+  //keycode = 39 = next
+
+  if(cuurentCN<channels.length)
+  {
+    cuurentCN = cuurentCN +1;
+  }
+
+ 
+TV(cuurentCN);
+
+
+
+}
+else if(e.keyCode == 37)
+{
+  // keycode = 37 = back
+  if(cuurentCN >= 0)
+  {
+    cuurentCN = cuurentCN -1;
+  }
+  
+  TV(cuurentCN);
+
+ 
+
+}
+
+else if(e.keyCode ==38 || e.keyCode ==40)
+{
+//up or down = show play list
+
+if(document.getElementById("palyList").style.display=="none")
+{
+  document.getElementById("palyList").style.display = "flex";
+  
+}
+
+
+
+if(e.keyCode ==38)
+{
+  // up
+  if(moveP>=0)
+  {
+    moveP = moveP -1;
+
+    cuurentCN = moveP;
+  }
+ 
+
+  window.setTimeout(function ()
+    {
+  document.getElementById("chButton"+moveP).focus();
+    },0);
+}
+else if(e.keyCode ==40)
+{
+   // down
+   if(moveP<channels.length)
+   {
+    moveP = moveP +1;
+    cuurentCN = moveP;
+   }
+   
+
+   window.setTimeout(function ()
+    {
+  document.getElementById("chButton"+moveP).focus();
+    },0);
+}
+
+
+
+}
+
+
+
+
+
+}
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+<!----------new------------->
+<script>
+  //-------------- Swip Class ----------------------------
+  class Swipe {
+      constructor(element) {
+          this.xDown = null;
+          this.yDown = null;
+          this.element = typeof(element) === 'string' ? document.querySelector(element) : element;
+  
+          this.element.addEventListener('touchstart', function(evt) {
+              this.xDown = evt.touches[0].clientX;
+              this.yDown = evt.touches[0].clientY;
+          }.bind(this), false);
+  
+      }
+  
+      onLeft(callback) {
+          this.onLeft = callback;
+  
+          return this;
+      }
+  
+      onRight(callback) {
+          this.onRight = callback;
+  
+          return this;
+      }
+  
+      onUp(callback) {
+          this.onUp = callback;
+  
+          return this;
+      }
+  
+      onDown(callback) {
+          this.onDown = callback;
+  
+          return this;
+      }
+  
+      handleTouchMove(evt) {
+          if ( ! this.xDown || ! this.yDown ) {
+              return;
+          }
+  
+          var xUp = evt.touches[0].clientX;
+          var yUp = evt.touches[0].clientY;
+  
+          this.xDiff = this.xDown - xUp;
+          this.yDiff = this.yDown - yUp;
+  
+          if ( Math.abs( this.xDiff ) > Math.abs( this.yDiff ) ) { // Most significant.
+              if ( this.xDiff > 0 ) {
+                  this.onLeft();
+              } else {
+                  this.onRight();
+              }
+          } else {
+              if ( this.yDiff > 0 ) {
+                  this.onUp();
+              } else {
+                  this.onDown();
+              }
+          }
+  
+          // Reset values.
+          this.xDown = null;
+          this.yDown = null;
+      }
+  
+      run() {
+          this.element.addEventListener('touchmove', function(evt) {
+              this.handleTouchMove(evt).bind(this);
+          }.bind(this), false);
+      }
+  }
+      //-------------- Swip Class end ----------------------------
+  
+      var swiper = new Swipe(document.getElementById('myBody'));
+      var swiperList = new Swipe(document.getElementById('palyList'));
+      
+  swiper.onLeft(function() 
+  { 
+    //keycode = 39 = next
+
+  if(cuurentCN<channels.length)
+  {
+    cuurentCN = cuurentCN +1;
+  }
+  TV(cuurentCN);
+});
+
+ 
+
+  
+  
+
+
+  swiper.onRight(function() 
+  {
+
+    if(cuurentCN >= 0)
+  {
+    cuurentCN = cuurentCN -1;
+  }
+  
+  TV(cuurentCN);
+});
+
+
+swiper.onUp(function(){
+
+  if(document.getElementById("palyList").style.display=="none")
+   {
+     document.getElementById("palyList").style.display = "flex";
+  
+   }
+
+  
+});
+
+swiperList.onUp(function(){
+
+
+  if(moveP<channels.length)
+   {
+    moveP = moveP +1;
+    cuurentCN = moveP;
+   }
+   
+
+   window.setTimeout(function ()
+    {
+  document.getElementById("chButton"+moveP).focus();
+    },0);
+
+
+});
+
+
+swiperList.onDown(function(){
+  if(moveP>=0)
+  {
+    moveP = moveP -1;
+
+    cuurentCN = moveP;
+  }
+ 
+
+  window.setTimeout(function ()
+    {
+  document.getElementById("chButton"+moveP).focus();
+    },0);
+});
+  
+  swiper.run();
+
+  swiperList.run();
+  
+  </script>
+
+
+<!---------------->
+<script>
+  
+  
+
+</script>
+
+
+</body>
+</html>
